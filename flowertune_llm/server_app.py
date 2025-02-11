@@ -6,11 +6,16 @@ from datetime import datetime
 from flwr.common import Context, ndarrays_to_parameters
 from flwr.common.config import unflatten_dict
 from flwr.server import ServerApp, ServerAppComponents, ServerConfig
-from flwr.server.strategy import FedAvg
+# from flwr.server.strategy import FedAvg
+
+# from flwr.server.strategy import (
+#     DifferentialPrivacyClientSideFixedClipping
+# )
 from omegaconf import DictConfig
 
 from flowertune_llm.models import get_model, get_parameters, set_parameters
 from flowertune_llm.dataset import replace_keys
+from flowertune_llm.strategy import FlowerTuneLlm
 
 
 # Get function that will be executed by the strategy's evaluate() method
@@ -75,7 +80,7 @@ def server_fn(context: Context):
     init_model_parameters = ndarrays_to_parameters(init_model_parameters)
 
     # Define strategy
-    strategy = FedAvg(
+    strategy = FlowerTuneLlm(
         fraction_fit=cfg.strategy.fraction_fit,
         fraction_evaluate=cfg.strategy.fraction_evaluate,
         on_fit_config_fn=get_on_fit_config(save_path),
@@ -84,7 +89,17 @@ def server_fn(context: Context):
         evaluate_fn=get_evaluate_fn(
             cfg.model, cfg.train.save_every_round, num_rounds, save_path
         ),
+        proximal_mu=1.0,
     )
+
+    # sampled_clients = 10*strategy.fraction_fit
+    # strategy = DifferentialPrivacyClientSideFixedClipping(
+    #     strategy, 
+    #     noise_multiplier=cfg.dp.noise_mult,
+    #     clipping_norm=cfg.dp.clip_norm,
+    #     num_sampled_clients=sampled_clients
+    # )
+
     config = ServerConfig(num_rounds=num_rounds)
 
     return ServerAppComponents(strategy=strategy, config=config)

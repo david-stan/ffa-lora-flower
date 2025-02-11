@@ -42,10 +42,12 @@ def load_data(partition_id: int, num_partitions: int, dataset_name: str):
         partitioner = IidPartitioner(num_partitions=num_partitions)
         FDS = FederatedDataset(
             dataset=dataset_name,
+            subset="main",
             partitioners={"train": partitioner},
         )
     client_trainset = FDS.load_partition(partition_id, "train")
-    client_trainset = client_trainset.rename_column("output", "response")
+    client_trainset = client_trainset.rename_column("answer", "response")
+    client_trainset = client_trainset.rename_column("question", "instruction")
 
     return client_trainset
 

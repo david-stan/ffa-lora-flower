@@ -33,35 +33,42 @@ serverapp = "flowertune_llm.server_app:app"
 clientapp = "flowertune_llm.client_app:app"
 
 [tool.flwr.app.config]
-dataset.name = "vicgalle/alpaca-gpt4"
-model.name = "openlm-research/open_llama_3b_v2"
+dataset.name = "openai/gsm8k"
+model.name = "huggyllama/llama-7b"
 model.quantization = 4
 model.gradient-checkpointing = true
-model.lora.peft-lora-r = 32
-model.lora.peft-lora-alpha = 64
+model.lora.peft-lora-r = 4
+model.lora.peft-lora-alpha = 32
 train.save-every-round = 5
 train.learning-rate-max = 5e-5
 train.learning-rate-min = 1e-6
 train.seq-length = 512
 train.training-arguments.output-dir = ""
 train.training-arguments.learning-rate = ""
-train.training-arguments.per-device-train-batch-size = 16
+train.training-arguments.per-device-train-batch-size = 32
 train.training-arguments.gradient-accumulation-steps = 1
-train.training-arguments.logging-steps = 10
+train.training-arguments.logging-steps = 1
 train.training-arguments.num-train-epochs = 3
-train.training-arguments.max-steps = 10
+train.training-arguments.max-steps = 6
 train.training-arguments.save-steps = 1000
 train.training-arguments.save-total-limit = 10
 train.training-arguments.gradient-checkpointing = true
-train.training-arguments.lr-scheduler-type = "constant"
-strategy.fraction-fit = 0.1
+train.training-arguments.lr-scheduler-type = "constant_with_warmup"
+train.training-arguments.fp16 = false
+train.training-arguments.bf16 = true
+train.training-arguments.tf32 = true
+train.training-arguments.optim = "paged_adamw_8bit"
+strategy.fraction-fit = 0.3
 strategy.fraction-evaluate = 0.0
+dp.noise_mult = 0.02
+dp.clip_norm = 0.5
+
 num-server-rounds = 50
 
 [tool.flwr.federations]
 default = "local-simulation"
 
 [tool.flwr.federations.local-simulation]
-options.num-supernodes = 20
-options.backend.client-resources.num-cpus = 8
+options.num-supernodes = 10
+options.backend.client-resources.num-cpus = 6
 options.backend.client-resources.num-gpus = 1.0
