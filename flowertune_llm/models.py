@@ -63,11 +63,11 @@ def get_model(model_cfg: DictConfig):
     # return get_peft_model(model, peft_config)
 
     peft_config = LoraConfig(
-        r=4,
+        r=model_cfg.lora.peft_lora_r,
         lora_alpha=model_cfg.lora.peft_lora_alpha,
         lora_dropout=0.075,
         task_type="CAUSAL_LM",
-        target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
+        target_modules=["q_proj", "v_proj"],
     )
 
     peft_model = get_peft_model(model, peft_config)

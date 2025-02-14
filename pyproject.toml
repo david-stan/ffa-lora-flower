@@ -20,6 +20,8 @@ dependencies = [
     "sentencepiece==0.2.0",
     "omegaconf==2.3.0",
     "hf_transfer==0.1.8",
+    "opacus==v1.4.1",
+    "dp_transformers==1.0.1",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -37,38 +39,39 @@ dataset.name = "openai/gsm8k"
 model.name = "huggyllama/llama-7b"
 model.quantization = 4
 model.gradient-checkpointing = true
-model.lora.peft-lora-r = 4
-model.lora.peft-lora-alpha = 32
+model.lora.peft-lora-r = 8
+model.lora.peft-lora-alpha = 8
 train.save-every-round = 5
-train.learning-rate-max = 5e-5
-train.learning-rate-min = 1e-6
+train.learning-rate-max = 5e-4
+train.learning-rate-min = 1e-4
 train.seq-length = 512
 train.training-arguments.output-dir = ""
 train.training-arguments.learning-rate = ""
 train.training-arguments.per-device-train-batch-size = 32
-train.training-arguments.gradient-accumulation-steps = 1
+train.training-arguments.gradient-accumulation-steps = 2
+train.training-arguments.weight-decay = 0.01
 train.training-arguments.logging-steps = 1
 train.training-arguments.num-train-epochs = 3
 train.training-arguments.max-steps = 6
 train.training-arguments.save-steps = 1000
 train.training-arguments.save-total-limit = 10
 train.training-arguments.gradient-checkpointing = true
-train.training-arguments.lr-scheduler-type = "constant_with_warmup"
+train.training-arguments.lr-scheduler-type = "constant"
 train.training-arguments.fp16 = false
 train.training-arguments.bf16 = true
 train.training-arguments.tf32 = true
-train.training-arguments.optim = "paged_adamw_8bit"
-strategy.fraction-fit = 0.3
+train.training-arguments.remove-unused-columns = false
+strategy.fraction-fit = 1.0
 strategy.fraction-evaluate = 0.0
-dp.noise_mult = 0.02
-dp.clip_norm = 0.5
-
-num-server-rounds = 50
+privacy.target_epsilon = 6
+privacy.target_delta = 1e-5
+privacy.per_sample_max_grad_norm = 2.0
+num-server-rounds = 60
 
 [tool.flwr.federations]
 default = "local-simulation"
 
 [tool.flwr.federations.local-simulation]
-options.num-supernodes = 10
-options.backend.client-resources.num-cpus = 6
+options.num-supernodes = 3
+options.backend.client-resources.num-cpus = 8
 options.backend.client-resources.num-gpus = 1.0
