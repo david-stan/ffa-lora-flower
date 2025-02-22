@@ -1,3 +1,0 @@
-[submodule "dp_transformers"]
-	path = dp_transformers
-	url = https://github.com/microsoft/dp-transformers.git
