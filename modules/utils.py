@@ -45,9 +45,8 @@ def partition_dataset_homogeneous(dataset: TensorDataset, num_clients=3):
     splits = np.array_split(indices, num_clients)
     return [Subset(dataset, split) for split in splits]
 
-def partition_dataset_heterogeneous(dataset: TensorDataset, num_clients=3):
-    """
-    3-class classification task, partitioning scheme:
+def partition_dataset_heterogeneous(dataset: TensorDataset):
+    """ 3-class classification task, partitioning scheme:
       - Client 0: 90% of samples have label 0, 5% label 1, 5% label 2
       - Client 1: 90% label 1, 5% label 0, 5% label 2
       - Client 2: 90% label 2, 5% label 0, 5% label 1
@@ -62,7 +61,7 @@ def partition_dataset_heterogeneous(dataset: TensorDataset, num_clients=3):
         {1: 0.9, 0: 0.05, 2: 0.05},
         {2: 0.9, 0: 0.05, 1: 0.05},
     ]
-    for client in range(num_clients):
+    for client in range(len(proportions)):
         client_indices = []
         for label in [0, 1, 2]:
             label_indices = indices[labels == label]

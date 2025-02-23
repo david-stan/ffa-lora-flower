@@ -38,7 +38,6 @@ def _dataset_to_features(dataset, tokenizer, set_type):
     The output will contain:
     `input_ids` - padded token ids sequence
     `attention mask` - mask indicating padded tokens
-    `token_type_ids` - mask indicating the split between premise and hypothesis
     `label` - label
     """
     examples = _create_examples(dataset, set_type)

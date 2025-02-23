@@ -13,7 +13,7 @@ from tqdm import tqdm
 from modules.utils import evaluate
 
 
-def FedAvg(w):
+def _fed_avg(w):
     w_avg = copy.deepcopy(w[0])
     for k in w_avg.keys():
         for i in range(1, len(w)):
@@ -26,7 +26,7 @@ def federated_train(
         client_train_partitions,
         test_dataloader,
         config, 
-        vanilla_lora=True,
+        learning_rate,
         logging=True,
     ):
     device = "cuda"
@@ -54,10 +54,6 @@ def federated_train(
                 sampler=RandomSampler(client_train_partitions[client_id]),
                 batch_size=config['BATCH_SIZE'],
             )
-
-            learning_rate = 0.2
-            if vanilla_lora:
-                learning_rate = 0.02
             
             local_optimizer = torch.optim.SGD(local_model.parameters(), lr=learning_rate)
             privacy_engine = PrivacyEngine()
@@ -114,7 +110,7 @@ def federated_train(
             client_params_list.append(local_params)
 
         # aggregate
-        aggregated_params = FedAvg(client_params_list)
+        aggregated_params = _fed_avg(client_params_list)
         # update ~.base_model!!!
         set_peft_model_state_dict(global_model.base_model, aggregated_params)
 
